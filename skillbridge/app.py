@@ -204,9 +204,24 @@ def api_health():
     return health()
 
 
+def _setup_logging():
+    """Rotating file log (PRD F19)."""
+    import logging
+    from logging.handlers import RotatingFileHandler
+
+    config.ensure_dirs()
+    handler = RotatingFileHandler(
+        config.log_dir() / "skillbridge.log", maxBytes=2_000_000, backupCount=5
+    )
+    handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s"))
+    logging.getLogger().addHandler(handler)
+    logging.getLogger().setLevel(logging.INFO)
+
+
 def main():
     """Entry point used by the systemd service."""
     import uvicorn
+    _setup_logging()
     cfg = config.load_config()
     uvicorn.run(app, host="0.0.0.0", port=int(cfg["port"]))
 

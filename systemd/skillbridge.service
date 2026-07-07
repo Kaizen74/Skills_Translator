@@ -1,0 +1,14 @@
+# SkillBridge systemd USER service — installed by install.sh into
+# ~/.config/systemd/user/skillbridge.service (paths are filled in there).
+[Unit]
+Description=SkillBridge — local skill porting app
+After=network.target
+
+[Service]
+WorkingDirectory=__APP_DIR__
+ExecStart=__APP_DIR__/.venv/bin/python -m skillbridge
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
