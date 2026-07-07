@@ -27,9 +27,44 @@ echo "   ✅ $(python3 --version) found."
 
 # --- 2. Private Python environment + dependencies ---------------------------
 echo "[2/6] Installing SkillBridge's own Python packages (one-time download)..."
-if [ ! -d "$APP_DIR/.venv" ]; then
-  python3 -m venv "$APP_DIR/.venv"
+
+# The Ubuntu package that lets Python build its own environments. Its exact
+# name matches the Python version (e.g. python3.12-venv). We suggest both the
+# versioned name and the generic one so the fix works on any Ubuntu.
+PYVER="$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')"
+VENV_FIX="sudo apt install -y python3-venv python${PYVER}-venv"
+
+venv_package_missing() {
+  echo "❌ Ubuntu is missing the add-on that builds Python environments."
+  echo "   Copy-paste this line, then run ./install.sh again:"
+  echo ""
+  echo "       $VENV_FIX"
+  echo ""
+  exit 1
+}
+
+# A previous half-finished run can leave a broken .venv with no pip inside.
+# Rebuild it from scratch rather than trusting it (this was the old failure).
+if [ -d "$APP_DIR/.venv" ] && [ ! -x "$APP_DIR/.venv/bin/pip" ]; then
+  echo "   (clearing an incomplete environment from an earlier attempt)"
+  rm -rf "$APP_DIR/.venv"
 fi
+
+if [ ! -x "$APP_DIR/.venv/bin/pip" ]; then
+  if ! python3 -m venv "$APP_DIR/.venv" 2>/tmp/skillbridge_venv.log; then
+    rm -rf "$APP_DIR/.venv"
+    venv_package_missing
+  fi
+  # Belt and braces: venv can 'succeed' yet omit pip when the package is absent.
+  if [ ! -x "$APP_DIR/.venv/bin/pip" ]; then
+    "$APP_DIR/.venv/bin/python" -m ensurepip --upgrade >/dev/null 2>&1 || true
+  fi
+  if [ ! -x "$APP_DIR/.venv/bin/pip" ]; then
+    rm -rf "$APP_DIR/.venv"
+    venv_package_missing
+  fi
+fi
+
 "$APP_DIR/.venv/bin/pip" install --quiet --upgrade pip
 "$APP_DIR/.venv/bin/pip" install --quiet -r "$APP_DIR/requirements.txt"
 echo "   ✅ Packages installed."

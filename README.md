@@ -58,6 +58,8 @@ On this machine, open:      http://localhost:8788
 ```
 
 > If it stops with a ❌ message, it will tell you exactly what to run to fix it (usually one `sudo apt install ...` line). Run that, then run `./install.sh` again — it's safe to re-run any number of times.
+>
+> **Most common one:** if it says *"Ubuntu is missing the add-on that builds Python environments"*, copy-paste the `sudo apt install -y python3-venv python3.12-venv` line it prints, then run `./install.sh` again. That's Ubuntu needing one small extra package the first time.
 
 ### Step 4 — Open SkillBridge
 
