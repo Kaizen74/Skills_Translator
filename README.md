@@ -99,7 +99,7 @@ SkillBridge runs on the Beelink, but you can use it from your laptop. It's alrea
 
 ## Using SkillBridge day to day
 
-1. **Add a skill.** On the Home screen, click **Upload skill ZIP** and pick the skill's `.zip` file. (Or drop a skill folder into `~/SkillBridge/inbox` — it's picked up within seconds.)
+1. **Add a skill.** On the Home screen, click **Upload skill** and pick either the skill's `.zip` file **or** a single `SKILL.md` file. (Or drop a skill folder, ZIP, or `.md` file into `~/SkillBridge/inbox` — it's picked up within seconds.)
 2. **Watch it work.** The queue shows plain-language progress: *"Reading skill… Classifying… Drafting standing rule (1 of 3)…"* A typical skill takes a few minutes on the local model.
 3. **Open the review screen.** You'll see:
    - a **portability verdict** — FULL (everything ports), PARTIAL (the method ports; Claude-only parts are listed), or CLAUDE-ONLY (kept on the Claude tier, nothing generated);
@@ -133,5 +133,6 @@ Logs live in `~/SkillBridge/logs/skillbridge.log` if you ever need to share deta
 
 - **Stack:** Python 3.11, FastAPI, SQLite, plain HTML/JS — no build toolchain. All state in `~/SkillBridge/`.
 - **Privacy:** the app makes no network calls except to Ollama on `127.0.0.1` — enforced by an automated test (`tests/test_no_egress.py`).
-- **Tests:** `./run_checks.sh` runs the full suite (57 tests) in mock-LLM mode, no model needed.
+- **Inputs:** a skill ZIP, a single `SKILL.md`/`.md` file, or a folder dropped in the inbox — all run the same pipeline.
+- **Tests:** `./run_checks.sh` runs the full suite (64 tests) in mock-LLM mode, no model needed.
 - **Docs:** `GUIDE.md` is the click-by-click owner's manual; `PROJECT_STATE.md`, `DECISIONS.md` and the PRD govern the build (resilient-build method).

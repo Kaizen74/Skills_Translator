@@ -1,5 +1,5 @@
-"""Ingestion (PRD F1): ZIP upload from the browser, or folders/ZIPs dropped
-into the watched inbox directory ~/SkillBridge/inbox/.
+"""Ingestion (PRD F1): a skill can arrive as a ZIP, a single SKILL.md-style
+markdown file, or a folder dropped into the watched inbox ~/SkillBridge/inbox/.
 
 Uploaded content is only ever read and listed — never executed.
 """
@@ -66,10 +66,42 @@ def ingest_zip_bytes(data: bytes, filename: str) -> int:
     return register_skill(extract_zip(data, filename))
 
 
+MD_SUFFIXES = (".md", ".markdown")
+
+
+def _write_skill_md(data: bytes, label: str) -> Path:
+    """Place a single markdown skill file into a fresh work dir as SKILL.md,
+    so the very same folder pipeline handles it (PRD F1: single .md input)."""
+    dest = _fresh_work_dir(Path(label).stem)
+    (dest / "SKILL.md").write_bytes(data)
+    return dest
+
+
+def ingest_md_bytes(data: bytes, filename: str) -> int:
+    return register_skill(_write_skill_md(data, filename))
+
+
+def ingest_upload(data: bytes, filename: str) -> int:
+    """Route a browser upload by file type: a skill ZIP or a single .md file."""
+    suffix = Path(filename).suffix.lower()
+    if suffix == ".zip":
+        return ingest_zip_bytes(data, filename)
+    if suffix in MD_SUFFIXES:
+        return ingest_md_bytes(data, filename)
+    raise IngestError(
+        "Please upload either a skill ZIP (.zip) or a single skill file (.md)."
+    )
+
+
 def ingest_inbox_item(item: Path) -> int:
-    """Move an inbox folder or ZIP into the work area and register it."""
-    if item.suffix.lower() == ".zip":
+    """Move an inbox folder, ZIP, or .md file into the work area and register it."""
+    suffix = item.suffix.lower()
+    if suffix == ".zip":
         skill_id = ingest_zip_bytes(item.read_bytes(), item.name)
+        item.unlink()
+        return skill_id
+    if suffix in MD_SUFFIXES:
+        skill_id = ingest_md_bytes(item.read_bytes(), item.name)
         item.unlink()
         return skill_id
     dest = _fresh_work_dir(item.name)
@@ -93,8 +125,11 @@ class InboxWatcher(threading.Thread):
         for item in sorted(inbox.iterdir()):
             if item.name.startswith("."):
                 continue
-            if item.is_dir() or item.suffix.lower() == ".zip":
+            is_md = item.suffix.lower() in MD_SUFFIXES
+            if item.is_dir() or item.suffix.lower() == ".zip" or is_md:
                 if item.is_dir() and _still_being_copied(item):
+                    continue
+                if not item.is_dir() and _file_still_being_copied(item):
                     continue
                 try:
                     ids.append(ingest_inbox_item(item))
@@ -123,3 +158,11 @@ def _still_being_copied(folder: Path, settle_seconds: float = 2.0) -> bool:
     except OSError:
         return True
     return (time.time() - newest) < settle_seconds
+
+
+def _file_still_being_copied(f: Path, settle_seconds: float = 2.0) -> bool:
+    """Skip a file written in the last couple of seconds — a copy may be in flight."""
+    try:
+        return (time.time() - f.stat().st_mtime) < settle_seconds
+    except OSError:
+        return True

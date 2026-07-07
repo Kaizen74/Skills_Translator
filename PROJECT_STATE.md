@@ -5,7 +5,7 @@
 SkillBridge: a fully-local web app for the Beelink GTR9 Pro (Ubuntu) that translates Claude SKILL.md skill folders into three reusable local artefacts — a Hermes standing rule, an Obsidian template, and a Qwen prompt pack — using the local Ollama LLM only. The owner reviews and approves every artefact in the browser before anything is written. It ports the method, never the file.
 
 ## Current status
-v1 complete: ingestion, classification, method-core extraction, three translators, review/approve UI, registry, re-port diffing, install script, systemd service, full test suite (mock LLM mode).
+v1 complete + running on the Beelink. Ingestion accepts a ZIP, a single .md file, or an inbox drop; classification, method-core extraction, three translators, review/approve UI, registry, re-port diffing, install script (self-healing venv), systemd service, laptop access over Tailscale, full test suite (64 tests, mock LLM mode).
 
 ## This session
 - [x] Increment 1 — Scaffold: state files, run_checks.sh, requirements, .gitignore

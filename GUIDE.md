@@ -23,7 +23,7 @@ The Beelink's name usually works too, e.g. `http://beelink:8788` (`tailscale sta
 ## How to use it
 
 ### Port a new skill
-1. On **Home**, click **Choose file**, pick the skill's `.zip`, and click **Upload skill ZIP**. (Alternative: drop the unzipped skill folder into `~/SkillBridge/inbox` using the file manager.)
+1. On **Home**, click **Choose file**, pick the skill's `.zip` **or** a single `SKILL.md` (`.md`) file, and click **Upload skill**. (Alternative: drop the skill folder, ZIP, or `.md` file into `~/SkillBridge/inbox` using the file manager.)
 2. The skill appears in the queue with live progress words. Wait for **"Ready for your review"**, then click **Open**.
 3. Read the **portability verdict** at the top:
    - **FULL** — the whole method ports.
@@ -48,6 +48,7 @@ Click **Registry** in the top bar to see every ported skill, its verdict, and st
 Click **Settings** to change the vault folder, the Ollama model name, or the port. The **"Test connection to Ollama"** button answers in plain language. After changing the model name, click Save — no restart needed (only the port needs a restart).
 
 ## What changed recently
+- 2026-07-07: You can now add a skill as a single `.md` file, not just a ZIP (upload it or drop it in the inbox).
 - 2026-07-07: First complete version — ingestion, portability verdicts, all three generators, review-and-approve screen, registry, skill updating, auto-start on boot, installer.
 
 ## If something goes wrong
