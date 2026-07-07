@@ -94,7 +94,8 @@ def parse_skill_folder(folder: str | Path) -> ParsedSkill:
         d = base / sub
         if d.is_dir():
             subfolders[sub] = sorted(
-                str(p.relative_to(d)) for p in d.rglob("*") if p.is_file()
+                str(p.relative_to(d)) for p in d.rglob("*")
+                if p.is_file() and "__pycache__" not in p.parts
             )
 
     # Include reference text in the human-only-field scan: the field may live

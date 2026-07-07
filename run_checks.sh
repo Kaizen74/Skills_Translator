@@ -7,7 +7,7 @@ PY="${SKILLBRIDGE_PY:-python3}"
 if [ -x ".venv/bin/python" ]; then PY=".venv/bin/python"; fi
 
 echo "1/3 Syntax check (compiling every Python file)..."
-"$PY" -m compileall -q skillbridge tests
+"$PY" -m compileall -q -x 'fixtures' skillbridge tests
 
 echo "2/3 Automated tests (mock LLM mode — no model needed)..."
 SKILLBRIDGE_MOCK_LLM=1 "$PY" -m pytest tests -q
