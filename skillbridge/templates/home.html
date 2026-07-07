@@ -16,10 +16,11 @@
 <div class="card">
   <h2>Add a skill</h2>
   <form action="/upload" method="post" enctype="multipart/form-data" class="row">
-    <input type="file" name="file" accept=".zip" required>
-    <button type="submit">Upload skill ZIP</button>
+    <input type="file" name="file" accept=".zip,.md,.markdown" required>
+    <button type="submit">Upload skill</button>
   </form>
-  <p class="muted">Or drop a skill folder into <code>{{ inbox_dir }}</code> —
+  <p class="muted">Upload a skill <strong>ZIP</strong> or a single <strong>.md</strong> file.
+  Or drop a skill folder, ZIP, or .md file into <code>{{ inbox_dir }}</code> —
   it will appear here within a few seconds.</p>
 </div>
 

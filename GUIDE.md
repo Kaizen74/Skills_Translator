@@ -13,10 +13,17 @@ You normally don't: SkillBridge starts by itself when the Beelink boots.
 
 (First-time installation is in README.md — four copy-paste commands, once.)
 
+## How to open it from your laptop
+SkillBridge runs on the Beelink, but you can use it from your laptop over Tailscale (your private, secure tunnel — nothing is exposed publicly).
+1. Make sure Tailscale is installed on your laptop and signed into the **same account** as the Beelink (get it at tailscale.com/download if you don't have it).
+2. On the Beelink, open Terminal and type `tailscale ip -4` — it prints a number like `100.88.12.34`.
+3. On the laptop, open your browser to `http://100.88.12.34:8788` (your number, keep the `:8788`).
+The Beelink's name usually works too, e.g. `http://beelink:8788` (`tailscale status` on the Beelink shows the name). Both machines must be on and connected. Everything works the same as on the Beelink; files still land in the Beelink's vault.
+
 ## How to use it
 
 ### Port a new skill
-1. On **Home**, click **Choose file**, pick the skill's `.zip`, and click **Upload skill ZIP**. (Alternative: drop the unzipped skill folder into `~/SkillBridge/inbox` using the file manager.)
+1. On **Home**, click **Choose file**, pick the skill's `.zip` **or** a single `SKILL.md` (`.md`) file, and click **Upload skill**. (Alternative: drop the skill folder, ZIP, or `.md` file into `~/SkillBridge/inbox` using the file manager.)
 2. The skill appears in the queue with live progress words. Wait for **"Ready for your review"**, then click **Open**.
 3. Read the **portability verdict** at the top:
    - **FULL** — the whole method ports.
@@ -41,6 +48,7 @@ Click **Registry** in the top bar to see every ported skill, its verdict, and st
 Click **Settings** to change the vault folder, the Ollama model name, or the port. The **"Test connection to Ollama"** button answers in plain language. After changing the model name, click Save — no restart needed (only the port needs a restart).
 
 ## What changed recently
+- 2026-07-07: You can now add a skill as a single `.md` file, not just a ZIP (upload it or drop it in the inbox).
 - 2026-07-07: First complete version — ingestion, portability verdicts, all three generators, review-and-approve screen, registry, skill updating, auto-start on boot, installer.
 
 ## If something goes wrong

@@ -15,7 +15,7 @@ from fastapi.templating import Jinja2Templates
 
 from . import config, db
 from .apply import apply_obsidian, apply_promptpack, registry_read, registry_update_status
-from .ingest import IngestError, InboxWatcher, ingest_zip_bytes
+from .ingest import IngestError, InboxWatcher, ingest_upload
 from .llm import get_llm
 from .worker import KIND_LABELS, Worker
 
@@ -77,7 +77,7 @@ def home(request: Request, error: str = ""):
 async def upload(file: UploadFile):
     data = await file.read()
     try:
-        ingest_zip_bytes(data, file.filename or "skill.zip")
+        ingest_upload(data, file.filename or "skill.zip")
     except IngestError as e:
         return RedirectResponse(url=f"/?error={e}", status_code=303)
     return RedirectResponse(url="/", status_code=303)

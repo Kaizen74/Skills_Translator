@@ -11,3 +11,4 @@
 | 2026-07-07 | Vault/registry writes: write temp file then os.replace (atomic), never overwrite (auto _v2 suffix) | PRD F11/N4: no corrupted or clobbered vault files, ever | In-place writes |
 | 2026-07-07 | systemd **user** service (not system) | Runs as the owner, owns ~/SkillBridge and the vault; starts on boot with lingering enabled | System service (root-owned files in the vault) |
 | 2026-07-07 | Default model tag `qwen3.5:35b-a3b`, editable in Settings with a plain-language Ollama test button | PRD §3 + open question 1: recommended default, owner confirms on the real machine | Hard-coding the tag |
+| 2026-07-07 | A single `.md` upload is written into a fresh work dir as `SKILL.md`, then run through the exact same folder pipeline | Owner request; reuses all parsing/classification/translation with zero special-casing downstream | A separate code path for loose .md files (duplicate logic, drift risk) |

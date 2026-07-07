@@ -90,6 +90,31 @@ def test_full_review_cycle_through_the_browser(isolated_env):
         assert "Rule sent" in client.get("/registry").text
 
 
+def test_upload_single_md_file_through_the_browser(isolated_env):
+    md_bytes = (FIXTURES / "pkm-processor" / "SKILL.md").read_bytes()
+    with TestClient(app) as client:
+        r = client.post("/upload", files={
+            "file": ("pkm-processor.md", md_bytes, "text/markdown")
+        }, follow_redirects=False)
+        assert r.status_code == 303
+        skill_id = db.list_skills()[0]["id"]
+        assert wait_ready(client, skill_id)["status"] == "ready"
+        review = client.get(f"/skill/{skill_id}")
+        assert "FULL" in review.text
+        # Approve the template -> filed into the vault, same as the ZIP path
+        art = db.get_artefact(skill_id, "obsidian")
+        client.post(f"/skill/{skill_id}/approve/obsidian",
+                    data={"content": art["content"], "dest_dir": ""})
+        assert (config.vault_path() / "_TEMPLATE_pkm-processor.md").exists()
+
+
+def test_home_page_offers_md_upload(isolated_env):
+    with TestClient(app) as client:
+        home = client.get("/")
+        assert ".md" in home.text
+        assert 'accept=".zip,.md,.markdown"' in home.text
+
+
 def test_partial_skill_shows_claude_only_list(isolated_env):
     with TestClient(app) as client:
         client.post("/upload", files={
