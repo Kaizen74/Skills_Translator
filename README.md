@@ -85,6 +85,18 @@ That's it. You never need the Terminal again.
 
 ---
 
+## Opening SkillBridge from your laptop (over Tailscale)
+
+SkillBridge runs on the Beelink, but you can use it from your laptop. It's already listening for you — you just need Tailscale (your private, secure tunnel) on both machines. Nothing is exposed to the public internet.
+
+1. **Tailscale on the laptop.** If you already use it, skip ahead. If not, install it from **tailscale.com/download** and sign in with the **same account** you used on the Beelink — both devices must share one account to see each other.
+2. **Find the Beelink's address.** On the Beelink, open Terminal (`Ctrl`+`Alt`+`T`) and type `tailscale ip -4`, then Enter. It prints a number like `100.88.12.34`.
+3. **Open it on the laptop.** In the laptop browser go to `http://100.88.12.34:8788` (your number, keep the `:8788`). You'll see the same home screen.
+
+**Tips:** Both machines must be on and signed into Tailscale. The Beelink's machine name usually works too — e.g. `http://beelink:8788` (run `tailscale status` on the Beelink to see its name). Bookmark the address so you don't retype it. Everything works the same from the laptop; skills are still filed into the Beelink's vault, because that's where SkillBridge actually runs.
+
+---
+
 ## Using SkillBridge day to day
 
 1. **Add a skill.** On the Home screen, click **Upload skill ZIP** and pick the skill's `.zip` file. (Or drop a skill folder into `~/SkillBridge/inbox` — it's picked up within seconds.)

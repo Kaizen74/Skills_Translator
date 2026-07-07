@@ -13,6 +13,13 @@ You normally don't: SkillBridge starts by itself when the Beelink boots.
 
 (First-time installation is in README.md — four copy-paste commands, once.)
 
+## How to open it from your laptop
+SkillBridge runs on the Beelink, but you can use it from your laptop over Tailscale (your private, secure tunnel — nothing is exposed publicly).
+1. Make sure Tailscale is installed on your laptop and signed into the **same account** as the Beelink (get it at tailscale.com/download if you don't have it).
+2. On the Beelink, open Terminal and type `tailscale ip -4` — it prints a number like `100.88.12.34`.
+3. On the laptop, open your browser to `http://100.88.12.34:8788` (your number, keep the `:8788`).
+The Beelink's name usually works too, e.g. `http://beelink:8788` (`tailscale status` on the Beelink shows the name). Both machines must be on and connected. Everything works the same as on the Beelink; files still land in the Beelink's vault.
+
 ## How to use it
 
 ### Port a new skill
