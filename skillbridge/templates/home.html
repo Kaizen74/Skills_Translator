@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Home</h1>
+
+{% if error %}<div class="notice error">⚠️ {{ error }}</div>{% endif %}
+
+<div class="card">
+  <h2>Health</h2>
+  <div class="muted">
+    <div>{{ "✅" if health.ollama_ok else "⚠️" }} {{ health.ollama_msg }}</div>
+    <div>{{ "✅" if health.vault_ok else "⚠️" }} {{ health.vault_msg }}</div>
+    <div>{{ "✅" if health.disk_ok else "⚠️" }} {{ health.disk_msg }}</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Add a skill</h2>
+  <form action="/upload" method="post" enctype="multipart/form-data" class="row">
+    <input type="file" name="file" accept=".zip" required>
+    <button type="submit">Upload skill ZIP</button>
+  </form>
+  <p class="muted">Or drop a skill folder into <code>{{ inbox_dir }}</code> —
+  it will appear here within a few seconds.</p>
+</div>
+
+<div class="card">
+  <h2>Skill queue</h2>
+  {% if not skills %}
+    <p class="muted">Nothing here yet. Upload your first skill ZIP above.</p>
+  {% else %}
+  <table>
+    <tr><th>Skill</th><th>Version</th><th>Verdict</th><th>Status</th><th></th></tr>
+    {% for s in skills %}
+    <tr id="skill-{{ s.id }}">
+      <td>{{ s.name }}</td>
+      <td>v{{ s.version }}</td>
+      <td>{% if s.verdict %}<span class="pill {{ s.verdict }}">{{ s.verdict }}</span>{% else %}<span class="muted">…</span>{% endif %}</td>
+      <td class="status-cell">
+        {% if s.status in ("queued", "processing") %}
+          <span class="muted js-progress" data-skill="{{ s.id }}">Working…</span>
+        {% elif s.status == "ready" %}Ready for your review
+        {% elif s.status == "done" %}Reviewed ✅
+        {% elif s.status == "claude-only" %}Run on Claude tier
+        {% elif s.status == "halted" %}<span class="warn">Halted (confidential flag)</span>
+        {% elif s.status == "error" %}<span class="warn">Problem — open for details</span>
+        {% else %}{{ s.status }}{% endif %}
+      </td>
+      <td><a class="btn" href="/skill/{{ s.id }}">Open</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+</div>
+
+<script>
+// Live progress words for skills still being processed (PRD F16).
+document.querySelectorAll('.js-progress').forEach(el => {
+  const id = el.dataset.skill;
+  const tick = async () => {
+    try {
+      const r = await fetch(`/api/skill/${id}/status`);
+      const j = await r.json();
+      if (j.progress) el.textContent = j.progress;
+      if (j.status === 'queued' || j.job_status === 'running' || j.job_status === 'queued') {
+        setTimeout(tick, 1500);
+      } else {
+        location.reload();
+      }
+    } catch (e) { setTimeout(tick, 3000); }
+  };
+  tick();
+});
+</script>
+{% endblock %}
