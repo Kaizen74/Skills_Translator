@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ skill.name }} <span class="muted">v{{ skill.version }}</span>
+  {% if skill.verdict %}<span class="pill {{ skill.verdict }}">{{ skill.verdict }}</span>{% endif %}
+</h1>
+
+{% if skill.status == "error" %}
+  <div class="notice error">⚠️ {{ skill.error }}</div>
+{% elif skill.status == "halted" %}
+  <div class="notice error">⚠️ {{ skill.error }}</div>
+{% elif skill.status in ("queued", "processing") or (job and job.status in ("queued","running")) %}
+  <div class="notice js-live" data-skill="{{ skill.id }}">⏳ {{ job.progress if job else "Working…" }}</div>
+{% endif %}
+
+{% if skill.verdict %}
+<div class="card">
+  <h2>Portability verdict</h2>
+  <p>{{ skill.verdict_reasoning }}</p>
+  {% if claude_only_items %}
+    <p><strong>Stays on the Claude tier:</strong></p>
+    <ul>{% for item in claude_only_items %}<li>{{ item }}</li>{% endfor %}</ul>
+  {% endif %}
+  {% if skill.diff_summary %}
+    <h2>What changed since the last version</h2>
+    <pre class="rule">{{ skill.diff_summary }}</pre>
+  {% endif %}
+</div>
+{% endif %}
+
+{% for kind, label in kind_labels.items() %}
+  {% set art = artefacts.get(kind) %}
+  {% if art %}
+  <div class="card">
+    <div class="row">
+      <h2 style="margin:0">{{ label | capitalize }}</h2>
+      <span class="pill">{{ art.status }}</span>
+      {% if art.applied_path %}<span class="muted">saved to {{ art.applied_path }}</span>{% endif %}
+    </div>
+
+    {% if kind == "hermes" and art.status == "approved" %}
+      <p class="muted">Paste this into your Hermes Telegram chat once:</p>
+      <pre class="rule" id="rule-text">{{ art.content }}</pre>
+      <div class="row">
+        <button onclick="copyRule()">📋 Copy</button>
+        <form class="inline" action="/skill/{{ skill.id }}/rule-sent" method="post">
+          <button class="secondary" type="submit">I've sent it — mark as done</button>
+        </form>
+        <span id="copy-ok" class="ok" style="display:none">Copied ✅</span>
+      </div>
+    {% else %}
+      <form action="/skill/{{ skill.id }}/approve/{{ kind }}" method="post">
+        <textarea name="content" {% if kind == "hermes" %}style="min-height:120px"{% endif %}>{{ art.content }}</textarea>
+        {% if kind == "hermes" %}
+          <p class="muted js-count">Length: {{ art.content | length }} / 900 characters</p>
+        {% endif %}
+        {% if kind == "obsidian" %}
+          <p class="muted">Save into folder:
+            <input type="text" name="dest_dir" value="{{ vault_dir }}"></p>
+        {% endif %}
+        <div class="row" style="margin-top:0.6rem">
+          <button type="submit">✅ Approve{% if kind == "obsidian" %} &amp; file into vault{% elif kind == "promptpack" %} &amp; save to library{% endif %}</button>
+        </div>
+      </form>
+      <form action="/skill/{{ skill.id }}/regenerate/{{ kind }}" method="post" class="row" style="margin-top:0.6rem">
+        <input type="text" name="steering" placeholder="Optional steering note, e.g. 'shorter, focus on scoring'">
+        <button class="secondary" type="submit">🔄 Regenerate</button>
+      </form>
+      <form action="/skill/{{ skill.id }}/skip/{{ kind }}" method="post" style="margin-top:0.6rem">
+        <button class="ghost" type="submit">Skip this artefact</button>
+      </form>
+    {% endif %}
+  </div>
+  {% endif %}
+{% endfor %}
+
+<script>
+function copyRule() {
+  const text = document.getElementById('rule-text').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    document.getElementById('copy-ok').style.display = 'inline';
+  });
+}
+document.querySelectorAll('.js-live').forEach(el => {
+  const id = el.dataset.skill;
+  const tick = async () => {
+    try {
+      const r = await fetch(`/api/skill/${id}/status`);
+      const j = await r.json();
+      if (j.progress) el.textContent = '⏳ ' + j.progress;
+      if (j.job_status === 'running' || j.job_status === 'queued') setTimeout(tick, 1500);
+      else location.reload();
+    } catch (e) { setTimeout(tick, 3000); }
+  };
+  tick();
+});
+</script>
+{% endblock %}

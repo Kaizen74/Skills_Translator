@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Skill Porting Registry</h1>
+<div class="card">
+  {% if not rows %}
+    <p class="muted">No skills have been ported yet.</p>
+  {% else %}
+  <table>
+    <tr><th>Skill</th><th>Version</th><th>Ported</th><th>Portability</th><th>Artefacts</th><th>Status</th></tr>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r[0] }}</td><td>{{ r[1] }}</td><td>{{ r[2] }}</td>
+      <td><span class="pill {{ r[3] }}">{{ r[3] }}</span></td>
+      <td>{{ r[4] }}</td><td>{{ r[5] }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+  <p class="muted">This is a read-only view of the note at
+  <code>{{ registry_path }}</code> — it is a normal Obsidian note you can edit there too.</p>
+</div>
+{% endblock %}
